@@ -1,0 +1,4 @@
+{
+    "backend": "https://github.com/Koustav216/Backend-Setup.git",
+    "auth": "https://github.com/Koustavjr/Authify.git"
+}
