@@ -1,5 +1,6 @@
 import inquirer from "inquirer";
 import fs from "fs-extra";
+import { select } from "@inquirer/prompts";
 import ora from "ora";
 import path from "path";
 import { execSync } from "child_process";
@@ -13,33 +14,44 @@ export const importTemplate = async (template: string) => {
 
     if (fs.existsSync(Projectpath)) {
         console.log(chalk.red(`Project with name ${template} already exists`));
-        process.exit(0);
+        process.exit(1);
     }
 
-    const answers = await inquirer.prompt([
-        {
-            type: "list",
-            name: "template",
-            message: "Select the template you want to start with...",
-            choices: [
-                { name: "Backend-Setup", value: "backend" },
-                { name: "Authentication-Setup", value: "auth" }
-            ],
-            default: "backend"
-        },
-    ]);
+    /* const answers = await inquirer.prompt([
+         {
+             type: "list",
+             name: "template",
+             message: "Select the template you want to start with...",
+             choices: [
+                 { name: "Backend-Setup", value: "backend" },
+                 { name: "Authentication-Setup", value: "auth" }
+             ],
+             default: "backend",
+             pageSize: 10
+         },
+     ]);*/
 
-    const url = answers.template === "backend" ? templates.backend : templates.auth;
+    const answers = await select({
+        message: "Select the template you want to start with...",
+        choices: [
+            { name: "Backend-Setup", value: "backend" },
+            { name: "Authentication-Setup", value: "auth" }
+        ],
+        default: "backend",
+    });
+
+
+    const url = answers === "backend" ? templates.backend : templates.auth;
 
     fs.mkdirSync(Projectpath);
 
-    const spinner = ora(`Downloading ${answers.template} template`).start();
+    const spinner = ora(`Downloading ${answers} template`).start();
 
     const git = simpleGit();
 
     try {
         await git.clone(url, Projectpath);
-        spinner.succeed(`Downloaded ${answers.template} template`);
+        spinner.succeed(`Downloaded ${answers} template`);
         chdir(Projectpath);
         spinner.start('Installing dependencies...')
         execSync("npm install", { stdio: "inherit" });

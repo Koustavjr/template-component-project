@@ -1,4 +1,3 @@
-import inquirer from "inquirer";
 import fs from "fs-extra";
 import ora from "ora";
 import path from "path";
@@ -6,22 +5,20 @@ import { execSync } from "child_process";
 import chalk from "chalk";
 import axios from "axios";
 const REGISTRY_URL = "http://localhost:5000/registry/r";
-export const importComponent = async (component) => {
+export const importAiComponent = async (prompt) => {
     try {
-        const res = await axios.get(`${REGISTRY_URL}/${component}`);
-        if (!res.data) {
-            console.log(chalk.red(`Component ${component} not found`));
-            process.exit(1);
-        }
+        const res = await axios.post(`${REGISTRY_URL}/ai/generate`, {
+            prompt
+        });
         const data = res.data;
         if (!data.files || data.files.length === 0) {
-            console.log(chalk.red(`Component ${component} has no files`));
-            process.exit(0);
+            console.log(chalk.red(`Component ${data.name} has no files`));
+            process.exit(1);
         }
-        const spinner = ora(`Downloading ${component} component`).start();
+        const spinner = ora(`Downloading ${data.name} component`).start();
         const firstFile = data.files[0];
         if (!firstFile) {
-            spinner.fail(chalk.red(`Component ${component} has no files`));
+            spinner.fail(chalk.red(`Component ${data.name} has no files`));
             process.exit(0);
         }
         for (let file of data.files) {
@@ -31,17 +28,17 @@ export const importComponent = async (component) => {
         }
         if (data.dependencies && data.dependencies.length > 0) {
             const dependencies = data.dependencies;
-            spinner.start(`Installing dependencies for ${component} component`);
+            spinner.start(`Installing dependencies for ${data.name} component`);
             let dependencyCollection = dependencies.join(" ");
             execSync(`npm install ${dependencyCollection}`, { stdio: "inherit" });
-            spinner.succeed(`Installed dependencies for ${component} component`);
+            spinner.succeed(`Installed dependencies for ${data.name} component`);
         }
-        spinner.succeed(`Downloaded ${component} component`);
-        console.log(chalk.green(`Component ${component} downloaded successfully`));
+        spinner.succeed(`Downloaded ${data.name} component`);
+        console.log(chalk.green(`Component ${data.name} downloaded successfully`));
     }
     catch (error) {
-        console.log(chalk.red(`Error downloading component ${component}`));
+        console.log(chalk.red(`Error downloading component for your promt: ${prompt}`));
         console.log(error);
     }
 };
-//# sourceMappingURL=component.js.map
+//# sourceMappingURL=ai.js.map

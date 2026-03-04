@@ -1,7 +1,7 @@
 {
-  "name": "backend-templates",
+  "name": "create-template",
   "version": "1.0.1",
-  "description": "CLI for downloading backend templates",
+  "description": "CLI for downloading templates",
   "main": "dist/index.js",
   "type": "module",
   "files": [
@@ -16,12 +16,13 @@
     "server": "npm run build && npm run start"
   },
   "bin": {
-    "create-backend-template": "./dist/index.js"
+    "create-template": "./dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@inquirer/prompts": "^8.3.0",
     "@types/axios": "^0.9.36",
     "@types/commander": "^2.12.0",
     "@types/nodemon": "^1.19.6",
